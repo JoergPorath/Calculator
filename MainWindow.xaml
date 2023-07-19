@@ -5,8 +5,182 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Calculator"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
-    <Grid>
+        Title="Taschenrechner" Height="509" Width="577" FontSize="22" MinWidth="335" MinHeight="509">
+    <Grid ShowGridLines="True">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="50"/>
+            <RowDefinition/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="15*"/>
+            <ColumnDefinition Width="11*"/>
+        </Grid.ColumnDefinitions>
+        <Grid Grid.Row="1" ShowGridLines="True">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="7*"/>
+                <RowDefinition Height="3*"/>
+                <RowDefinition Height="24*"/>
+            </Grid.RowDefinitions>
+            <Grid Grid.Row="2" Margin="1">
+                <Grid.RowDefinitions>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition/>
+                    <ColumnDefinition/>
+                    <ColumnDefinition/>
+                    <ColumnDefinition/>
+                </Grid.ColumnDefinitions>
+                <!-- Ziffern -->
+                <Button Content="0" Grid.Column="1" Margin="3" Grid.Row="5" Padding="2" Focusable="False" IsTabStop="False">
+                    <Button.Effect>
+                        <DropShadowEffect BlurRadius="3" ShadowDepth="3" Opacity="0.5"/>
+                    </Button.Effect>
+                </Button>
+                <Button  Content="1" Grid.Row="4" Margin="3" Padding="2" Focusable="False" IsTabStop="False">
+                    <Button.Effect>
+                        <DropShadowEffect BlurRadius="3" ShadowDepth="3" Opacity="0.5"/>
+                    </Button.Effect>
+                </Button>
+                <Button Content="2" Grid.Column="1" Grid.Row="4" Margin="3" Padding="2" Focusable="False" IsTabStop="False">
+                    <Button.Effect>
+                        <DropShadowEffect BlurRadius="3" ShadowDepth="3" Opacity="0.5"/>
+                    </Button.Effect>
+                </Button>
+                <Button Content="3" Grid.Column="2" Grid.Row="4" Margin="3" Padding="2" Focusable="False" IsTabStop="False">
+                    <Button.Effect>
+                        <DropShadowEffect BlurRadius="3" ShadowDepth="3" Opacity="0.5"/>
+                    </Button.Effect>
+                </Button>
+                <Button  Content="4" Grid.Row="3" Margin="3" Padding="2" Focusable="False" IsTabStop="False">
+                    <Button.Effect>
+                        <DropShadowEffect BlurRadius="3" ShadowDepth="3" Opacity="0.5"/>
+                    </Button.Effect>
+                </Button>
+                <Button Content="5" Grid.Column="1" Grid.Row="3" Margin="3" Padding="2" Focusable="False" IsTabStop="False">
+                    <Button.Effect>
+                        <DropShadowEffect BlurRadius="3" ShadowDepth="3" Opacity="0.5"/>
+                    </Button.Effect>
+                </Button>
+                <Button Content="6" Grid.Column="2" Grid.Row="3" Margin="3" Padding="2" Focusable="False" IsTabStop="False">
+                    <Button.Effect>
+                        <DropShadowEffect BlurRadius="3" ShadowDepth="3" Opacity="0.5"/>
+                    </Button.Effect>
+                </Button>
+                <Button  Content="7" Grid.Row="2" Margin="3" Padding="2" Focusable="False" IsTabStop="False">
+                    <Button.Effect>
+                        <DropShadowEffect BlurRadius="3" ShadowDepth="3" Opacity="0.5"/>
+                    </Button.Effect>
+                </Button>
+                <Button Content="8" Grid.Column="1" Grid.Row="2" Margin="3" Padding="2" Focusable="False" IsTabStop="False">
+                    <Button.Effect>
+                        <DropShadowEffect BlurRadius="3" ShadowDepth="3" Opacity="0.5"/>
+                    </Button.Effect>
+                </Button>
+                <Button Content="9" Grid.Column="2" Grid.Row="2" Margin="3" Padding="2" Focusable="False" IsTabStop="False">
+                    <Button.Effect>
+                        <DropShadowEffect BlurRadius="3" ShadowDepth="3" Opacity="0.5"/>
+                    </Button.Effect>
+                </Button>
+                <!-- Unäre Operatoren auf aktuelle Eingabe -->
+                <Button  Content="%" Margin="3" Padding="2" Focusable="False" IsTabStop="False">
+                    <Button.Effect>
+                        <DropShadowEffect BlurRadius="3" ShadowDepth="3" Opacity="0.5"/>
+                    </Button.Effect>
+                </Button>
+                <Button  Content="1/x" Grid.Row="1" Margin="3" Padding="2" Focusable="False" IsTabStop="False">
+                    <Button.Effect>
+                        <DropShadowEffect BlurRadius="3" ShadowDepth="3" Opacity="0.5"/>
+                    </Button.Effect>
+                </Button>
+                <Button Content="x²" Grid.Column="1" Grid.Row="1" Margin="3" Padding="2" Focusable="False" IsTabStop="False">
+                    <Button.Effect>
+                        <DropShadowEffect BlurRadius="3" ShadowDepth="3" Opacity="0.5"/>
+                    </Button.Effect>
+                </Button>
+                <Button Content="√x" Grid.Column="2" Grid.Row="1" Margin="3" Padding="2" Focusable="False" IsTabStop="False">
+                    <Button.Effect>
+                        <DropShadowEffect BlurRadius="3" ShadowDepth="3" Opacity="0.5"/>
+                    </Button.Effect>
+                </Button>
+                <Button Content="±" Grid.Row="5" Margin="3" Padding="2" Focusable="False" IsTabStop="False">
+                    <Button.Effect>
+                        <DropShadowEffect BlurRadius="3" ShadowDepth="3" Opacity="0.5"/>
+                    </Button.Effect>
+                </Button>
+                <!-- Binäre Grundrechen-Operatoren -->
+                <Button Grid.Column="3" Content="+" Margin="3" Grid.Row="4" Padding="2" IsTabStop="False" Focusable="False">
+                    <Button.Effect>
+                        <DropShadowEffect BlurRadius="3" ShadowDepth="3" Opacity="0.5"/>
+                    </Button.Effect>
+                </Button>
+                <Button Grid.Column="3" Content="-" Margin="3" Grid.Row="3" Padding="2" IsTabStop="False" Focusable="False">
+                    <Button.Effect>
+                        <DropShadowEffect BlurRadius="3" ShadowDepth="3" Opacity="0.5"/>
+                    </Button.Effect>
+                </Button>
+                <Button Grid.Column="3" Content="x" Margin="3" Grid.Row="2" Padding="2" IsTabStop="False" Focusable="False">
+                    <Button.Effect>
+                        <DropShadowEffect BlurRadius="3" ShadowDepth="3" Opacity="0.5"/>
+                    </Button.Effect>
+                </Button>
+                <Button Grid.Column="3" Content="÷" Margin="3" Grid.Row="1" Padding="2" IsTabStop="False" Focusable="False">
+                    <Button.Effect>
+                        <DropShadowEffect BlurRadius="3" ShadowDepth="3" Opacity="0.5"/>
+                    </Button.Effect>
+                </Button>
+                <!-- = und , -->
+                <Button Grid.Column="3" Content="=" Margin="3" Grid.Row="5" Padding="2" IsDefault="True" IsTabStop="False" Focusable="False">
+                    <Button.Effect>
+                        <DropShadowEffect BlurRadius="3" ShadowDepth="3" Opacity="0.5"/>
+                    </Button.Effect>
+                </Button>
+                <Button Grid.Column="2" Content="," Margin="3,3,3,3" Grid.Row="5" Padding="2" Focusable="False" IsTabStop="False">
+                    <Button.Effect>
+                        <DropShadowEffect BlurRadius="3" ShadowDepth="3" Opacity="0.5"/>
+                    </Button.Effect>
+                </Button>
+                <!-- Löschen -->
+                <Button Content="CE" Grid.Column="1" Margin="3" Padding="2" Focusable="False" IsTabStop="False">
+                    <Button.Effect>
+                        <DropShadowEffect BlurRadius="3" ShadowDepth="3" Opacity="0.5"/>
+                    </Button.Effect>
+                </Button>
+                <Button Content="C" Grid.Column="2" Margin="3" Padding="2" Focusable="False" IsTabStop="False">
+                    <Button.Effect>
+                        <DropShadowEffect BlurRadius="3" ShadowDepth="3" Opacity="0.5"/>
+                    </Button.Effect>
+                </Button>
+                <Button Content="←" Grid.Column="3" Margin="3" Padding="2" Focusable="False" IsTabStop="False">
+                    <Button.Effect>
+                        <DropShadowEffect BlurRadius="3" ShadowDepth="3" Opacity="0.5"/>
+                    </Button.Effect>
+                </Button>
+            </Grid>
+            <Label Content="987.654.321,23" Margin="3,10,3,10" HorizontalContentAlignment="Right" VerticalContentAlignment="Bottom" FontSize="46"/>
+            <Grid Grid.Row="1">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition/>
+                    <ColumnDefinition/>
+                    <ColumnDefinition/>
+                    <ColumnDefinition/>
+                    <ColumnDefinition/>
+                    <ColumnDefinition/>
+                </Grid.ColumnDefinitions>
+                <!-- Speicher -->
+                <Button Content="MC" FontSize="16" HorizontalAlignment="Center" VerticalAlignment="Center" Padding="10,1,10,1" IsTabStop="False" Focusable="False"/>
+                <Button Content="MR" FontSize="16" HorizontalAlignment="Center" VerticalAlignment="Center" Padding="10,1,10,1" Grid.Column="1" IsTabStop="False" Focusable="False"/>
+                <Button Content="M+" FontSize="16" HorizontalAlignment="Center" VerticalAlignment="Center" Padding="10,1,10,1" Grid.Column="2" IsTabStop="False" Focusable="False"/>
+                <Button Content="M-" FontSize="16" HorizontalAlignment="Center" VerticalAlignment="Center" Padding="10,1,10,1" Grid.Column="3" IsTabStop="False" Focusable="False"/>
+                <Button Content="MS" FontSize="16" HorizontalAlignment="Center" VerticalAlignment="Center" Padding="10,1,10,1" Grid.Column="4" IsTabStop="False" Focusable="False"/>
+                <Button Content="M˅" FontSize="16" HorizontalAlignment="Center" VerticalAlignment="Center" Padding="10,1,10,1" Grid.Column="5" IsTabStop="False" Focusable="False"/>
+            </Grid>
+        </Grid>
 
     </Grid>
 </Window>
