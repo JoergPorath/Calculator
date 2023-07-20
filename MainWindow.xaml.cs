@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Diagnostics.Eventing.Reader;
 using System.Linq;
 using System.Text;
@@ -22,6 +23,14 @@ namespace Calculator
     /// </summary>
     public partial class MainWindow : Window
     {
+        // Inhalt des Displays als String
+        // TODO StringBuilder?!?
+        private String displayContent = "0";
+        // Unterscheidung, ob eine Zahl verändert oder eine neue Zahl eingegeben wird
+        private Boolean alreadyEnteringNumber = false;
+        // TODO ?
+        private Boolean newNumberInDisplay = true;
+
         public MainWindow()
         {
             InitializeComponent();
@@ -42,11 +51,9 @@ namespace Calculator
 
             // Zifferneingaben über die Content-Eigenschaft des Buttons zuordnen:
             String content = btn.Content.ToString() ?? "";
-            if (content.Length == 1 && content[0] >= '0' && content[0] <= '9')
+            if (content.Length == 1 && char.IsDigit(content[0])) // >= '0' && content[0] <= '9')
             {
-                int digit = Convert.ToInt32(content[0]);
-                // TODO Calculator.EnterDigit(digit);
-                display.Content += content;
+                EnterDigit(content[0]);
             }
             else
             {
@@ -74,7 +81,7 @@ namespace Calculator
                 }
                 else if (btn == btn_swapSign)
                 {
-
+                    SwapSign();
                 }
                 else if (btn == btn_reciprocal)
                 {
@@ -94,23 +101,20 @@ namespace Calculator
                 }
                 else if (btn == btn_decimal)
                 {
-
+                    EnterDecimal();
                 }
                 else if (btn == btn_backspace)
                 {
-                    // TODO
-                    String currentDisplay = display.Content.ToString() ?? "0";
-                    display.Content = currentDisplay.Remove(currentDisplay.Length - 1);
+                    EnterBackspace();
                 }
                 else if (btn == btn_clearEntry)
                 {
-                    // TODO
-                    display.Content = "0";
+                    ClearEntry();
                 }
                 else if (btn == btn_clear)
                 {
                     // TODO
-                    display.Content = "0";
+                    ClearEntry();
                 }
             }
         }
@@ -256,6 +260,82 @@ namespace Calculator
                 // andere Modifiziertatsten (STRG, ALT, WINDOWS) werden ignoriert
                 return null;
             }
+        }
+
+        private void EnterDigit(char digit)
+        {
+            Debug.Assert(char.IsDigit(digit));
+
+            if (alreadyEnteringNumber)
+            {
+                if (displayContent == "0")
+                {
+                    // Führende 0 nur vor einem Komma, sonst überschreiben
+                    displayContent = digit.ToString();
+                } else
+                {
+                    displayContent += digit;
+                }
+            }
+            else
+            {
+                displayContent = digit.ToString();
+                alreadyEnteringNumber = true;
+            }
+            display.Content = displayContent;
+        }
+
+        private void EnterDecimal()
+        {
+            if (alreadyEnteringNumber)
+            {
+                // kein doppeltes Komma
+                if (!displayContent.Contains(","))
+                {
+                    displayContent += ",";
+                }
+            }
+            else
+            {
+                displayContent = "0,";
+                alreadyEnteringNumber = true;
+            }
+            display.Content = displayContent;
+        }
+
+        private void EnterBackspace()
+        {
+            if (alreadyEnteringNumber && displayContent.Length > 0)
+            {
+                displayContent = displayContent.Remove(displayContent.Length - 1);
+                if (displayContent.Length == 0)
+                {
+                    displayContent = "0";
+                }
+                display.Content = displayContent;
+            }
+        }
+
+        private void ClearEntry()
+        {
+            displayContent = "0";
+            display.Content = displayContent;
+        }
+
+        private void SwapSign()
+        {
+            if (displayContent != "0")
+            {
+                if (displayContent.StartsWith("-"))
+                {
+                    displayContent = displayContent.Remove(0, 1);
+                }
+                else
+                {
+                    displayContent = "-" + displayContent;
+                }
+                display.Content = displayContent;
+            }            
         }
     }
 }
