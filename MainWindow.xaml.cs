@@ -1,20 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Diagnostics.Eventing.Reader;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Effects;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 
 namespace Calculator
 {
@@ -85,19 +75,19 @@ namespace Calculator
                 }
                 else if (btn == btn_reciprocal)
                 {
-
+                    // TODO
                 }
                 else if (btn == btn_square)
                 {
-
+                    // TODO
                 }
                 else if (btn == btn_squareRoot)
                 {
-
+                    // TODO
                 }
                 else if (btn == btn_percent)
                 {
-
+                    // TODO
                 }
                 else if (btn == btn_decimal)
                 {
@@ -179,81 +169,40 @@ namespace Calculator
             Key key = e.Key;
             if (Keyboard.Modifiers == ModifierKeys.None)
             {
-                switch (key)
+                return key switch
                 {
-                    case Key.D0:
-                    case Key.NumPad0:
-                        return digit_0;
-                    case Key.D1:
-                    case Key.NumPad1:
-                        return digit_1;
-                    case Key.D2:
-                    case Key.NumPad2:
-                        return digit_2;
-                    case Key.D3:
-                    case Key.NumPad3:
-                        return digit_3;
-                    case Key.D4:
-                    case Key.NumPad4:
-                        return digit_4;
-                    case Key.D5:
-                    case Key.NumPad5:
-                        return digit_5;
-                    case Key.D6:
-                    case Key.NumPad6:
-                        return digit_6;
-                    case Key.D7:
-                    case Key.NumPad7:
-                        return digit_7;
-                    case Key.D8:
-                    case Key.NumPad8:
-                        return digit_8;
-                    case Key.D9:
-                    case Key.NumPad9:
-                        return digit_9;
-                    case Key.Back:
-                        return btn_backspace;
-                    case Key.Add:
-                    case Key.OemPlus:
-                        return btn_add;
-                    case Key.Subtract:
-                    case Key.OemMinus:
-                        return btn_subtract;
-                    case Key.Multiply:
-                        return btn_multiply;
-                    case Key.Divide:
-                        return btn_divide;
-                    case Key.Enter:
-                        return btn_evaluate;
-                    case Key.Decimal:
-                    case Key.OemComma:
-                        return btn_decimal;
-                    case Key.Delete:
-                        return btn_clearEntry;
-                    case Key.Escape:
-                        return btn_clear;
-                    // TODO...
-                    default:
-                        //display.Content = key.ToString();
-                        return null;
-                }
+                    Key.D0 or Key.NumPad0 => digit_0,
+                    Key.D1 or Key.NumPad1 => digit_1,
+                    Key.D2 or Key.NumPad2 => digit_2,
+                    Key.D3 or Key.NumPad3 => digit_3,
+                    Key.D4 or Key.NumPad4 => digit_4,
+                    Key.D5 or Key.NumPad5 => digit_5,
+                    Key.D6 or Key.NumPad6 => digit_6,
+                    Key.D7 or Key.NumPad7 => digit_7,
+                    Key.D8 or Key.NumPad8 => digit_8,
+                    Key.D9 or Key.NumPad9 => digit_9,
+                    Key.Back => btn_backspace,
+                    Key.Add or Key.OemPlus => btn_add,
+                    Key.Subtract or Key.OemMinus => btn_subtract,
+                    Key.Multiply => btn_multiply,
+                    Key.Divide => btn_divide,
+                    Key.Enter => btn_evaluate,
+                    Key.Decimal or Key.OemComma => btn_decimal,
+                    Key.Delete => btn_clearEntry,
+                    Key.Escape => btn_clear,
+                    _ => null,
+                };
             }
             else if (Keyboard.Modifiers == ModifierKeys.Shift)
             {
                 // Zuordnung bei gedrückter Shift-Taste
-                switch (key)
+                return key switch
                 {
-                    case Key.D5:
-                        return btn_percent;
-                    case Key.OemPlus:
-                        return btn_multiply;
-                    case Key.D7:
-                        return btn_divide;
-                    // TODO...
-                    default:
-                        return null;
-                    
-                }
+                    Key.D5 => btn_percent,
+                    Key.OemPlus => btn_multiply,
+                    Key.D7 => btn_divide,
+                    _ => null,
+                };
             }
             else
             {
@@ -262,6 +211,10 @@ namespace Calculator
             }
         }
 
+        /// <summary>
+        /// Verarbeitung von Ziffer-Eingaben.
+        /// </summary>
+        /// <param name="digit">Ziffer als Zeichen (Muss einer Ziffer von 0 - 9 entsprechen!)</param>
         private void EnterDigit(char digit)
         {
             Debug.Assert(char.IsDigit(digit), digit + " ist keine Ziffer!");
@@ -285,6 +238,11 @@ namespace Calculator
             display.Content = displayContent.ToString();
         }
 
+        /// <summary>
+        /// Setzen der Dezimalstelle.
+        /// Dies ist nur einmal in der Zahl möglich.
+        /// Das Setzen eines Kommas an erster Stelle wird als "0," interpretiert.
+        /// </summary>
         private void EnterDecimal()
         {
             if (alreadyEnteringNumber)
@@ -303,10 +261,14 @@ namespace Calculator
             display.Content = displayContent.ToString();
         }
 
+        /// <summary>
+        /// Beginnt die Eingabe einer neuen Zahl (Durch eingabe einer Ziffer, oder ",").
+        /// </summary>
         private void StartNewEntry()
         {
             if (calculator.OperandRight != null)
             {
+                // Letzter Term mit "=" abgeschlossen -> Neue Rechnung.
                 calculator.OperandLeft = null;
             }
             alreadyEnteringNumber = true;
@@ -314,6 +276,9 @@ namespace Calculator
             calculator.OperandRight = null;
         }
 
+        /// <summary>
+        /// Löschen der zuletzt eingegebenen Ziffer oder des Dezimaltrennzeichens.
+        /// </summary>
         private void EnterBackspace()
         {
             if (alreadyEnteringNumber && displayContent.Length > 0)
@@ -327,6 +292,9 @@ namespace Calculator
             }
         }
 
+        /// <summary>
+        /// Zurücksetzen des Displays.
+        /// </summary>
         private void ClearEntry()
         {
             displayContent.Clear().Append('0');
@@ -335,6 +303,9 @@ namespace Calculator
             newNumberInDisplay = true;
         }
 
+        /// <summary>
+        /// Wechsel des Vorzeichens.
+        /// </summary>
         private void SwapSign()
         {
             if (displayContent.ToString() != "0")
@@ -351,6 +322,11 @@ namespace Calculator
             }            
         }
 
+        /// <summary>
+        /// Setzen eines zweiwertigen Operators (+, -, *, /).
+        /// Führt bei einer zuvor eingegeben Zahl zur Auswertung des linken Terms.
+        /// </summary>
+        /// <param name="binayOperator">Operator (+, -, *, /) als Enum-Wert</param>
         private void SetBinaryOperator(Operator binayOperator)
         {
             if (newNumberInDisplay) // (ohne Änderung des Operanden wird nur der Operator verändert)
@@ -369,13 +345,13 @@ namespace Calculator
                     Calculate();
                 }
             }
-            
-
-
             calculator.BinaryOperator = binayOperator;
             calculator.OperandRight = null;
         }
 
+        /// <summary>
+        /// Auswertung des Terms (durch "=").
+        /// </summary>
         private void Evaluate()
         {
             if (calculator.OperandRight == null)
@@ -388,6 +364,9 @@ namespace Calculator
             newNumberInDisplay = false;
         }
 
+        /// <summary>
+        /// Berechnung durch die CalculatorLogic-Instanz und ggf. Anziege von Fehlern (z.B. Teilen durch 0).
+        /// </summary>
         private void Calculate()
         {
             Double result = calculator.Evaluate();
@@ -396,13 +375,21 @@ namespace Calculator
             {
                 display.Content = "ERROR";
                 termDisplay.Content = calculator.ErrorMessage;
-                // TODO...
+                // TODO Anzeige muss wieder aufeghoben werden...
             }
             else
             {
-                // TODO? check:
-                displayContent.Clear().Append(result.ToString());
+                // TODO schöner Lösung zum Formatieren finden!
+                if (Math.Abs(result) > 999999999999 || Math.Abs(result) < 0.0000000001)
+                {
+                    displayContent.Clear().Append(result.ToString("G8"));
+                }
+                else
+                {
+                    displayContent.Clear().Append(result.ToString("G12"));
+                }
                 display.Content = displayContent.ToString();
+                // TODO Term anzeigen!
                 calculator.OperandLeft = result;
             }
         }
