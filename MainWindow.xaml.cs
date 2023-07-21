@@ -23,13 +23,14 @@ namespace Calculator
     /// </summary>
     public partial class MainWindow : Window
     {
-        // Inhalt des Displays als String
-        // TODO StringBuilder?!?
-        private String displayContent = "0";
+        // Inhalt des Displays als StringBuilder
+        private StringBuilder displayContent = new StringBuilder("0");
         // Unterscheidung, ob eine Zahl verändert oder eine neue Zahl eingegeben wird
         private Boolean alreadyEnteringNumber = false;
-        // TODO ?
+        // Ob die Zahl im Display neu ist, oder noch das Ergebnis der letzten Berechnung
         private Boolean newNumberInDisplay = true;
+        // Instanz (Singleton) der Rechen-Logik
+        private readonly CalculatorLogic calculator = new CalculatorLogic();
 
         public MainWindow()
         {
@@ -60,24 +61,23 @@ namespace Calculator
                 // Verarbeitung von Buttons, die keine Ziffern sind, unabhängig vom Content (um z.B. auch Bilder zu ermöglichen):
                 if (btn == btn_add)
                 {
-
+                    SetBinaryOperator(Operator.Add);
                 }
                 else if (btn == btn_subtract)
                 {
-
+                    SetBinaryOperator(Operator.Sub);
                 }
                 else if (btn == btn_multiply)
                 {
-
+                    SetBinaryOperator(Operator.Mult);
                 }
                 else if (btn == btn_divide)
                 {
-
+                    SetBinaryOperator(Operator.Div);
                 }
                 else if (btn == btn_evaluate)
                 {
-                    // TODO
-                    display.Content += "=42";
+                    Evaluate();
                 }
                 else if (btn == btn_swapSign)
                 {
@@ -113,7 +113,7 @@ namespace Calculator
                 }
                 else if (btn == btn_clear)
                 {
-                    // TODO
+                    calculator.Clear();
                     ClearEntry();
                 }
             }
@@ -264,25 +264,25 @@ namespace Calculator
 
         private void EnterDigit(char digit)
         {
-            Debug.Assert(char.IsDigit(digit));
+            Debug.Assert(char.IsDigit(digit), digit + " ist keine Ziffer!");
 
             if (alreadyEnteringNumber)
             {
-                if (displayContent == "0")
+                if (displayContent.ToString() == "0")
                 {
                     // Führende 0 nur vor einem Komma, sonst überschreiben
-                    displayContent = digit.ToString();
+                    displayContent.Clear().Append(digit);
                 } else
                 {
-                    displayContent += digit;
+                    displayContent.Append(digit);
                 }
             }
             else
             {
-                displayContent = digit.ToString();
-                alreadyEnteringNumber = true;
+                StartNewEntry();
+                displayContent.Clear().Append(digit);
             }
-            display.Content = displayContent;
+            display.Content = displayContent.ToString();
         }
 
         private void EnterDecimal()
@@ -290,52 +290,121 @@ namespace Calculator
             if (alreadyEnteringNumber)
             {
                 // kein doppeltes Komma
-                if (!displayContent.Contains(","))
+                if (!displayContent.ToString().Contains(","))
                 {
-                    displayContent += ",";
+                    displayContent.Append(',');
                 }
             }
             else
             {
-                displayContent = "0,";
-                alreadyEnteringNumber = true;
+                StartNewEntry();
+                displayContent.Clear().Append("0,");
             }
-            display.Content = displayContent;
+            display.Content = displayContent.ToString();
+        }
+
+        private void StartNewEntry()
+        {
+            if (calculator.OperandRight != null)
+            {
+                calculator.OperandLeft = null;
+            }
+            alreadyEnteringNumber = true;
+            newNumberInDisplay = true;
+            calculator.OperandRight = null;
         }
 
         private void EnterBackspace()
         {
             if (alreadyEnteringNumber && displayContent.Length > 0)
             {
-                displayContent = displayContent.Remove(displayContent.Length - 1);
+                displayContent.Remove(displayContent.Length - 1, 1);
                 if (displayContent.Length == 0)
                 {
-                    displayContent = "0";
+                    displayContent.Append("0");
                 }
-                display.Content = displayContent;
+                display.Content = displayContent.ToString();
             }
         }
 
         private void ClearEntry()
         {
-            displayContent = "0";
-            display.Content = displayContent;
+            displayContent.Clear().Append('0');
+            display.Content = displayContent.ToString();
+            alreadyEnteringNumber = false;
+            newNumberInDisplay = true;
         }
 
         private void SwapSign()
         {
-            if (displayContent != "0")
+            if (displayContent.ToString() != "0")
             {
-                if (displayContent.StartsWith("-"))
+                if (displayContent[0] == '-')
                 {
-                    displayContent = displayContent.Remove(0, 1);
+                    displayContent.Remove(0, 1);
                 }
                 else
                 {
-                    displayContent = "-" + displayContent;
+                    displayContent.Insert(0, '-');
                 }
-                display.Content = displayContent;
+                display.Content = displayContent.ToString();
             }            
+        }
+
+        private void SetBinaryOperator(Operator binayOperator)
+        {
+            if (newNumberInDisplay) // (ohne Änderung des Operanden wird nur der Operator verändert)
+            {
+                // Bisherigen Term auswerten
+                double value = Convert.ToDouble(displayContent.ToString());
+                alreadyEnteringNumber = false;
+                newNumberInDisplay = false;
+                if (calculator.OperandLeft == null)
+                {
+                    calculator.OperandLeft = value;
+                }
+                else
+                {
+                    calculator.OperandRight = value;
+                    Calculate();
+                }
+            }
+            
+
+
+            calculator.BinaryOperator = binayOperator;
+            calculator.OperandRight = null;
+        }
+
+        private void Evaluate()
+        {
+            if (calculator.OperandRight == null)
+            {
+                double value = Convert.ToDouble(displayContent.ToString());
+                calculator.OperandRight = value;
+            }
+            Calculate();
+            alreadyEnteringNumber = false;
+            newNumberInDisplay = false;
+        }
+
+        private void Calculate()
+        {
+            Double result = calculator.Evaluate();
+
+            if (result.Equals(CalculatorLogic.ERROR))
+            {
+                display.Content = "ERROR";
+                termDisplay.Content = calculator.ErrorMessage;
+                // TODO...
+            }
+            else
+            {
+                // TODO? check:
+                displayContent.Clear().Append(result.ToString());
+                display.Content = displayContent.ToString();
+                calculator.OperandLeft = result;
+            }
         }
     }
 }
