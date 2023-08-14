@@ -14,11 +14,13 @@ namespace Calculator
     public partial class MainWindow : Window
     {
         // Inhalt des Displays als StringBuilder
-        private StringBuilder displayContent = new StringBuilder("0");
+        private readonly StringBuilder displayContent = new StringBuilder("0");
         // Unterscheidung, ob eine Zahl verändert oder eine neue Zahl eingegeben wird
-        private Boolean alreadyEnteringNumber = false;
+        private bool isAlreadyEnteringNumber = false;
         // Ob die Zahl im Display neu ist, oder noch das Ergebnis der letzten Berechnung
-        private Boolean newNumberInDisplay = true;
+        private bool isNewNumberInDisplay = true;
+        // Ob gerade ein Fehler angezeigt wird;
+        private bool isShowingError = false;
         // Instanz (Singleton) der Rechen-Logik
         private readonly CalculatorLogic calculator = new CalculatorLogic();
 
@@ -219,7 +221,12 @@ namespace Calculator
         {
             Debug.Assert(char.IsDigit(digit), digit + " ist keine Ziffer!");
 
-            if (alreadyEnteringNumber)
+            if (isShowingError)
+            {
+                ClearEntry();
+            }
+
+            if (isAlreadyEnteringNumber)
             {
                 if (displayContent.ToString() == "0")
                 {
@@ -235,7 +242,7 @@ namespace Calculator
                 StartNewEntry();
                 displayContent.Clear().Append(digit);
             }
-            display.Content = displayContent.ToString();
+            UpdateDisplay();
         }
 
         /// <summary>
@@ -245,7 +252,12 @@ namespace Calculator
         /// </summary>
         private void EnterDecimal()
         {
-            if (alreadyEnteringNumber)
+            if (isShowingError)
+            {
+                ClearEntry();
+            }
+
+            if (isAlreadyEnteringNumber)
             {
                 // kein doppeltes Komma
                 if (!displayContent.ToString().Contains(","))
@@ -258,7 +270,7 @@ namespace Calculator
                 StartNewEntry();
                 displayContent.Clear().Append("0,");
             }
-            display.Content = displayContent.ToString();
+            UpdateDisplay();
         }
 
         /// <summary>
@@ -271,8 +283,8 @@ namespace Calculator
                 // Letzter Term mit "=" abgeschlossen -> Neue Rechnung.
                 calculator.OperandLeft = null;
             }
-            alreadyEnteringNumber = true;
-            newNumberInDisplay = true;
+            isAlreadyEnteringNumber = true;
+            isNewNumberInDisplay = true;
             calculator.OperandRight = null;
         }
 
@@ -281,14 +293,14 @@ namespace Calculator
         /// </summary>
         private void EnterBackspace()
         {
-            if (alreadyEnteringNumber && displayContent.Length > 0)
+            if (isAlreadyEnteringNumber && displayContent.Length > 0)
             {
                 displayContent.Remove(displayContent.Length - 1, 1);
                 if (displayContent.Length == 0)
                 {
                     displayContent.Append("0");
                 }
-                display.Content = displayContent.ToString();
+                UpdateDisplay();
             }
         }
 
@@ -297,10 +309,15 @@ namespace Calculator
         /// </summary>
         private void ClearEntry()
         {
+            if (isShowingError)
+            {
+                ShowErrorMessage(false);
+                calculator.Clear();
+            }
             displayContent.Clear().Append('0');
-            display.Content = displayContent.ToString();
-            alreadyEnteringNumber = false;
-            newNumberInDisplay = true;
+            UpdateDisplay();
+            isAlreadyEnteringNumber = false;
+            isNewNumberInDisplay = true;
         }
 
         /// <summary>
@@ -318,7 +335,7 @@ namespace Calculator
                 {
                     displayContent.Insert(0, '-');
                 }
-                display.Content = displayContent.ToString();
+                UpdateDisplay();
             }            
         }
 
@@ -329,12 +346,12 @@ namespace Calculator
         /// <param name="binayOperator">Operator (+, -, *, /) als Enum-Wert</param>
         private void SetBinaryOperator(Operator binayOperator)
         {
-            if (newNumberInDisplay) // (ohne Änderung des Operanden wird nur der Operator verändert)
+            if (isNewNumberInDisplay) // (ohne Änderung des Operanden wird nur der Operator verändert)
             {
                 // Bisherigen Term auswerten
                 double value = Convert.ToDouble(displayContent.ToString());
-                alreadyEnteringNumber = false;
-                newNumberInDisplay = false;
+                isAlreadyEnteringNumber = false;
+                isNewNumberInDisplay = false;
                 if (calculator.OperandLeft == null)
                 {
                     calculator.OperandLeft = value;
@@ -360,8 +377,8 @@ namespace Calculator
                 calculator.OperandRight = value;
             }
             Calculate();
-            alreadyEnteringNumber = false;
-            newNumberInDisplay = false;
+            isAlreadyEnteringNumber = false;
+            isNewNumberInDisplay = false;
         }
 
         /// <summary>
@@ -373,25 +390,75 @@ namespace Calculator
 
             if (result.Equals(CalculatorLogic.ERROR))
             {
-                display.Content = "ERROR";
-                termDisplay.Content = calculator.ErrorMessage;
-                // TODO Anzeige muss wieder aufeghoben werden...
+                ShowErrorMessage(true);
             }
             else
             {
-                // TODO schöner Lösung zum Formatieren finden!
-                if (Math.Abs(result) > 999999999999 || Math.Abs(result) < 0.0000000001)
-                {
-                    displayContent.Clear().Append(result.ToString("G8"));
-                }
-                else
-                {
-                    displayContent.Clear().Append(result.ToString("G12"));
-                }
-                display.Content = displayContent.ToString();
+                displayContent.Clear().Append(result);
+                UpdateDisplay();
                 // TODO Term anzeigen!
                 calculator.OperandLeft = result;
             }
+        }
+
+        /// <summary>
+        /// Aktualisiert die Anzeige und passt dabei die Schriftgröße an.
+        /// </summary>
+        private void UpdateDisplay()
+        {
+            if (displayContent.Length > 22)
+            {
+                display.FontSize = 24;
+            }
+            else if (displayContent.Length > 19)
+            {
+                display.FontSize = 26;
+            }
+            else if (displayContent.Length > 15)
+            {
+                display.FontSize = 30;
+            }
+            else if (displayContent.Length > 12)
+            {
+                display.FontSize = 36;
+            }
+            else
+            {
+                display.FontSize = 48;
+            }
+            display.Content = displayContent.ToString();
+        }
+
+        /// <summary>
+        /// Zeigt eine Fehlermeldung im Display an, bzw. löscht diese und (de)aktiviert alle Buttons außer Clear und die zur Eingabe einer neuen Zahl.
+        /// </summary>
+        /// <param name="currentError">ob jetzt ein Fehler angezeigt werden soll</param>
+        private void ShowErrorMessage(bool currentError)
+        {
+            if (currentError)
+            {
+                display.FontSize = 48;
+                display.Content = "ERROR";
+                termDisplay.Content = calculator.ErrorMessage;
+            }
+            else
+            {
+                termDisplay.Content = "";
+            }
+            // Buttons (de)aktivieren
+            btn_add.IsEnabled = !currentError;
+            btn_subtract.IsEnabled = !currentError;
+            btn_multiply.IsEnabled = !currentError;
+            btn_divide.IsEnabled = !currentError;
+            btn_reciprocal.IsEnabled = !currentError;
+            btn_square.IsEnabled = !currentError;
+            btn_squareRoot.IsEnabled = !currentError;
+            btn_swapSign.IsEnabled = !currentError;
+            btn_percent.IsEnabled = !currentError;
+            btn_evaluate.IsEnabled = !currentError;
+            btn_backspace.IsEnabled = !currentError;
+
+            isShowingError = currentError;
         }
     }
 }
