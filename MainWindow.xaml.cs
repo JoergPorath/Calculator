@@ -16,7 +16,16 @@ namespace Calculator
         // Inhalt des Displays als StringBuilder
         private readonly StringBuilder displayContent = new StringBuilder("0");
         // Unterscheidung, ob eine Zahl verändert oder eine neue Zahl eingegeben wird
-        private bool isAlreadyEnteringNumber = false;
+        private bool isAlreadyEnteringNumber;
+        private bool IsAlreadyEnteringNumber {
+            get { 
+                return isAlreadyEnteringNumber;
+            }
+            set {
+                isAlreadyEnteringNumber = value;
+                btn_backspace.IsEnabled = value;
+            }
+        }
         // Ob die Zahl im Display neu ist, oder noch das Ergebnis der letzten Berechnung
         private bool isNewNumberInDisplay = true;
         // Ob gerade ein Fehler angezeigt wird;
@@ -27,6 +36,7 @@ namespace Calculator
         public MainWindow()
         {
             InitializeComponent();
+            IsAlreadyEnteringNumber = false;
         }
 
         /// <summary>
@@ -107,6 +117,7 @@ namespace Calculator
                 {
                     calculator.Clear();
                     ClearEntry();
+                    termDisplay.Content = "";
                 }
             }
         }
@@ -257,7 +268,7 @@ namespace Calculator
                 ClearEntry();
             }
 
-            if (isAlreadyEnteringNumber)
+            if (IsAlreadyEnteringNumber)
             {
                 // kein doppeltes Komma
                 if (!displayContent.ToString().Contains(","))
@@ -283,7 +294,7 @@ namespace Calculator
                 // Letzter Term mit "=" abgeschlossen -> Neue Rechnung.
                 calculator.OperandLeft = null;
             }
-            isAlreadyEnteringNumber = true;
+            IsAlreadyEnteringNumber = true;
             isNewNumberInDisplay = true;
             calculator.OperandRight = null;
         }
@@ -293,12 +304,12 @@ namespace Calculator
         /// </summary>
         private void EnterBackspace()
         {
-            if (isAlreadyEnteringNumber && displayContent.Length > 0)
+            if (IsAlreadyEnteringNumber && displayContent.Length > 0)
             {
                 displayContent.Remove(displayContent.Length - 1, 1);
                 if (displayContent.Length == 0)
                 {
-                    displayContent.Append("0");
+                    displayContent.Append('0');
                 }
                 UpdateDisplay();
             }
@@ -316,7 +327,7 @@ namespace Calculator
             }
             displayContent.Clear().Append('0');
             UpdateDisplay();
-            isAlreadyEnteringNumber = false;
+            IsAlreadyEnteringNumber = false;
             isNewNumberInDisplay = true;
         }
 
@@ -350,7 +361,7 @@ namespace Calculator
             {
                 // Bisherigen Term auswerten
                 double value = Convert.ToDouble(displayContent.ToString());
-                isAlreadyEnteringNumber = false;
+                IsAlreadyEnteringNumber = false;
                 isNewNumberInDisplay = false;
                 if (calculator.OperandLeft == null)
                 {
@@ -364,6 +375,8 @@ namespace Calculator
             }
             calculator.BinaryOperator = binayOperator;
             calculator.OperandRight = null;
+
+            ShowCurrentTerm();
         }
 
         /// <summary>
@@ -376,8 +389,9 @@ namespace Calculator
                 double value = Convert.ToDouble(displayContent.ToString());
                 calculator.OperandRight = value;
             }
+            ShowCurrentTerm(withEvaluation: true);
             Calculate();
-            isAlreadyEnteringNumber = false;
+            IsAlreadyEnteringNumber = false;
             isNewNumberInDisplay = false;
         }
 
@@ -396,7 +410,6 @@ namespace Calculator
             {
                 displayContent.Clear().Append(result);
                 UpdateDisplay();
-                // TODO Term anzeigen!
                 calculator.OperandLeft = result;
             }
         }
@@ -459,6 +472,61 @@ namespace Calculator
             btn_backspace.IsEnabled = !currentError;
 
             isShowingError = currentError;
+        }
+
+        /// <summary>
+        /// Zeigt den aktuellen Term an.
+        /// </summary>
+        /// <param name="withEvaluation">ob auch der rechte Operand und das "=" angezeigt werden sollen (default: false)</param>
+        private void ShowCurrentTerm(bool withEvaluation = false)
+        {
+            if (isShowingError)
+            {
+                return;
+            }
+
+            StringBuilder term = new StringBuilder();
+            if (calculator.OperandLeft != null)
+            {
+                term.Append(calculator.OperandLeft.ToString() + " ");
+
+                switch (calculator.BinaryOperator)
+                {
+                    case Operator.Add:
+                        term.Append('+');
+                        break;
+                    case Operator.Sub:
+                        term.Append('-');
+                        break;
+                    case Operator.Mult:
+                        term.Append('x');
+                        break;
+                    case Operator.Div:
+                        term.Append('÷');
+                        break;
+                    case null:
+                        break;
+                    default:
+                        Debug.Assert(false, "Ungültiger Operator!");
+                        break;
+                }
+            }
+
+            if (withEvaluation)
+            {
+                Debug.Assert(calculator.OperandRight is not null, "Der rechte Operand sollte bei Aufruf von ShowCurrentTerm(true) gesetzt sein!");
+                term.Append(" " + calculator.OperandRight.ToString() + " =");
+            }
+
+            if (term.Length > 37)
+            {
+                termDisplay.FontSize = 14;
+            }
+            else
+            {
+                termDisplay.FontSize = 16;
+            }
+            termDisplay.Content = term.ToString();
         }
     }
 }
